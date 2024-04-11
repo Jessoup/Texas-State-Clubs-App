@@ -1,11 +1,12 @@
 from django.urls import path
-from . import views
+from .views import getRoutes, getUsers, getUser, createUser, updateUser, deleteUser, login_view
 
 urlpatterns = [
-    path('', views.getRoutes),
-    path('users/', views.getUsers),
-    path('users/create/', views.createUser),
-    path('users/<str:pk>/update/', views.updateUser),
-    path('users/<str:pk>/delete/', views.deleteUser),
-    path('users/<str:pk>/', views.getUser),
+    path('api/routes/', getRoutes, name='routes'),
+    path('api/users/', getUsers, name='users'),
+    path('api/users/create/', createUser, name='create-user'),
+    path('api/users/<str:pk>/update/', updateUser, name='update-user'),
+    path('api/users/<str:pk>/delete/', deleteUser, name='delete-user'),
+    path('api/users/<str:pk>/', getUser, name='get-user'),
+    path('api/login/', login_view, name='login'), 
 ]

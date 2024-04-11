@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'api_services.dart'; // Make sure this is pointing correctly to your ApiService file
 
 void main() {
   runApp(MyApp());
@@ -20,19 +21,17 @@ class MyApp extends StatelessWidget {
 class LoginPage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final ApiService apiService = ApiService(); // Add ApiService instance
 
-  void _login(BuildContext context) {
-    // Here you can add your login logic, such as checking credentials.
-    // For simplicity, let's assume a successful login for any non-empty username/password.
+  void _login(BuildContext context) async {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
-    if (username.isNotEmpty && password.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Dashboard()),
-      );
+    if (await apiService.loginUser(username, password)) { // Use ApiService for login
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Dashboard()),);
     } else {
       // Show an error message or handle invalid credentials here.
+      final snackBar = SnackBar(content: Text('Invalid username or password!'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
 
