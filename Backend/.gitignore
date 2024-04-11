@@ -6,3 +6,4 @@ Pipfile.lock
 .vscode
 Pipfile
 venv/
+.env.dist

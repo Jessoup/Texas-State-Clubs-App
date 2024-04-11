@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String baseUrl = "http://localhost:8000/api"; // Replace with your actual Django backend URL
+  final String baseUrl = "http://localhost:8000"; // Replace with your actual Django backend URL
 
   Future<List<dynamic>> fetchUsers() async {
     final response = await http.get(Uri.parse('$baseUrl/users/'), headers: {"Accept": "application/json"});
