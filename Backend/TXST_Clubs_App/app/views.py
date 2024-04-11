@@ -40,6 +40,8 @@ def createUser(request):
         password=data['password'],
         isAdmin=data['isAdmin'],
     )
+
+    
     serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
 

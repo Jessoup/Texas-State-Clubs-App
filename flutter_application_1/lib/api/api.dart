@@ -5,6 +5,9 @@ import 'package:http/http.dart' as http;
 import '../urls.dart';
 
 class api {
+
+  
+
   Future<List<User>?> getUsers() async {
     var client = http.Client();
 
@@ -16,6 +19,6 @@ class api {
     }
   }
 
-  
+
 
 }
