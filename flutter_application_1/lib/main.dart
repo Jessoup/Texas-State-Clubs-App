@@ -23,17 +23,18 @@ class LoginPage extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
   final ApiService apiService = ApiService(); // Add ApiService instance
 
-  void _login(BuildContext context) async {
+void _login(BuildContext context) async {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
-    if (await apiService.loginUser(username, password)) { // Use ApiService for login
+    if (await apiService.loginUser(username, password)) {
       Navigator.push(context, MaterialPageRoute(builder: (context) => Dashboard()),);
     } else {
-      // Show an error message or handle invalid credentials here.
-      final snackBar = SnackBar(content: Text('Invalid username or password!'));
+      // Handling error messages on the UI
+      final snackBar = SnackBar(content: Text('Login failed! Please check your username and password or try again later.'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
-  }
+}
+
 
   @override
   Widget build(BuildContext context) {

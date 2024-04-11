@@ -58,10 +58,10 @@ class ApiService {
       throw Exception('Failed to load user');
     }
   }
-  Future<bool> loginUser(String username, String password) async {
+Future<bool> loginUser(String username, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/login/'), // Adjust this URL to your backend's login endpoint
+        Uri.parse('$baseUrl/api/login/'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'username': username,
@@ -70,16 +70,15 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        // Assuming a successful login returns HTTP 200. Adjust as necessary based on your API.
-        // You might also want to handle the received token here if your API provides one.
         return true;
       } else {
-        // Handle unsuccessful login attempts or errors
+        print('Login failed with status: ${response.statusCode} and reason: ${response.body}');
         return false;
       }
     } catch (e) {
-      print(e); // For debugging purposes
+      print('Login exception: $e');
       return false;
     }
-  }
+}
+
 }
