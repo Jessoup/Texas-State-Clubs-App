@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'club_list.dart';
 
 void main() {
   runApp(MyApp());
@@ -125,7 +126,35 @@ class Dashboard extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            Card(
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Clublist()),
+                );
+              },
+              child: Card(
+                elevation: 5,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Explore Clubs',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text('View list of available clubs'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            /*Card(
               elevation: 5,
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
@@ -144,7 +173,7 @@ class Dashboard extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
+            ),*/
             SizedBox(height: 20),
             Card(
               elevation: 5,
