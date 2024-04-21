@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_application_1/user_prof.dart';
 import 'club_list.dart';
 
 void main() {
@@ -84,6 +86,28 @@ class Dashboard extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Dashboard'),
+        //leading: Image.asset('assets/logo.png'),
+        actions: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UserP())
+                );
+              },
+              child: Image.asset(
+              'assets/blank_user.jpg',
+              height: 50,
+            ),
+            )
+            /*child: Image.asset(
+              'assets/blank_user.jpg',
+              height: 50,
+            ),*/
+          )
+        ]
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
