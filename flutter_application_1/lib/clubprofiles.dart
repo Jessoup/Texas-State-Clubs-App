@@ -7,7 +7,7 @@ class ClubProfilePage extends StatelessWidget {
   final String clubDescription;
   final String clubImageUrl; // Optional image URL
 
-  ClubProfilePage({this.clubName, this.clubDescription, this.clubImageUrl});
+  ClubProfilePage({ required this.clubName, required this.clubDescription, required this.clubImageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class ClubProfilePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           SizedBox(height: 20),
-          if (clubImageUrl != null)
+          if (clubImageUrl != "")
             Image.network(clubImageUrl), // Display the image if available
           SizedBox(height: 20),
           Text(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/clubprofiles.dart';
 import 'clubs.dart';
 
 
@@ -19,10 +20,10 @@ class Clublist extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => Club(
-                    clubID: 1,
+                  MaterialPageRoute(builder: (context) => ClubProfilePage(
+                    clubImageUrl: 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.britannica.com%2Fstory%2Fwhy-do-some-people-call-football-soccer&psig=AOvVaw38U0H3mRjdS35P83WsO06n&ust=1713745997430000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCLD51tOH0oUDFQAAAAAdAAAAABAE',
                     clubName: 'Texas State Esports',
-                    clubDescrip: 'we are a silly folk',)
+                    clubDescription: 'we are a silly folk',)
                   ),
                 );
               },
