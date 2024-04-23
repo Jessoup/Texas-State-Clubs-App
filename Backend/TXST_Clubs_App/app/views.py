@@ -4,13 +4,38 @@ from rest_framework import generics, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 
 from .serializers import SignUpSerializer
 from .tokens import create_jwt_pair_for_user
 
 # Create your views here.
+from .serializers import ClubSerializer, CreateClubSerializer
+from .models import Club
 
+class ClubListView(generics.GenericAPIView):
+    serializer_class = CreateClubSerializer
+    permission_classes = [] 
+    def get(self, request):
+        clubs = Club.objects.all()
+        serializer = ClubSerializer(clubs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            club = serializer.save()
+            return Response(ClubSerializer(club).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ClubDetailView(generics.GenericAPIView):
+    serializer_class = ClubSerializer
+
+    def get(self, request, pk):
+        club = get_object_or_404(Club, pk=pk)
+        serializer = self.serializer_class(club)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class SignUpView(generics.GenericAPIView):
     serializer_class = SignUpSerializer

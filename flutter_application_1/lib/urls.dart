@@ -8,4 +8,5 @@ class ApiUrls {
 >>>>>>> working version
   static String loginEndpoint = '/auth/login/';
   static String signupEndpoint = '/auth/signup/';
+  static String clubsEndpoint = '/clubs/'; 
 }
