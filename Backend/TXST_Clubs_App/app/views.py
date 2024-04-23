@@ -4,6 +4,7 @@ from rest_framework import generics, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import ValidationError
 
 from .serializers import SignUpSerializer
 from .tokens import create_jwt_pair_for_user
@@ -26,6 +27,9 @@ class SignUpView(generics.GenericAPIView):
             response = {"message": "User Created Successfully", "data": serializer.data}
 
             return Response(data=response, status=status.HTTP_201_CREATED)
+
+        elif isinstance(serializer.errors.get("email"), ValidationError) and "Email is already in use" in serializer.errors.get("email").messages:
+            return Response(data={"message": "Email is already in use"}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

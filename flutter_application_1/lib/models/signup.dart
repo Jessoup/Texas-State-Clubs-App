@@ -5,22 +5,33 @@ SignupResponseModel signupResponseModelFromJson(String str) => SignupResponseMod
 String signupResponseModelToJson(SignupResponseModel data) => json.encode(data.toJson());
 
 class SignupResponseModel {
-    String message;
+    String? message;
     Data? data;
+    List<String>? errors;
 
     SignupResponseModel({
-        required this.message,
+        this.message,
         this.data,
+        this.errors,
     });
 
-    factory SignupResponseModel.fromJson(Map<String, dynamic> json) => SignupResponseModel(
-        message: json["message"],
-        data: json.containsKey("data") ? Data.fromJson(json["data"]) : null,
-    );
+    factory SignupResponseModel.fromJson(Map<String, dynamic> json){
+        if (json.containsKey("errors")){
+          return SignupResponseModel(
+            errors: List<String>.from(json["errors"]),
+          );
+        } else {
+          return SignupResponseModel(
+            message: json["message"],
+            data: json.containsKey("data") ? Data.fromJson(json["data"]) : null,
+          );
+        }
+    }
 
     Map<String, dynamic> toJson() => {
         "message": message,
-        "tokens": data?.toJson(),
+        "data": data?.toJson(),
+        "errors": errors,
     };
 }
 

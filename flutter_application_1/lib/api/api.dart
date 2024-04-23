@@ -24,10 +24,16 @@ class api {
   Future<SignupResponseModel> signup(User requestModel) async {
     var uri = Uri.parse(ApiUrls.baseUrl + ApiUrls.signupEndpoint);
     var response = await http.post(uri, body: requestModel.toJson());
-    if(response.statusCode == 200){
+    print(response.body);
+    print(response.statusCode);
+    if(response.statusCode == 201){
       return SignupResponseModel.fromJson(json.decode(response.body));
     }
-    else {
+    else if (response.statusCode == 400){
+      return SignupResponseModel.fromJson(json.decode(response.body));
+    } else {
+      print("Failed to load data. Status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
       throw Exception('Failed to load Data');
     }
   }
