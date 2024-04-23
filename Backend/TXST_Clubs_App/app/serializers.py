@@ -3,7 +3,20 @@ from rest_framework.authtoken.models import Token
 from rest_framework.validators import ValidationError
 
 from .models import User
+from .models import Club
 
+class ClubSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Club
+        fields = ['id', 'clubName', 'clubDescription']
+
+class CreateClubSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Club
+        fields = ['clubName', 'clubDescription']
+
+    def create(self, validated_data):
+        return Club.objects.create(**validated_data)
 
 class SignUpSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=80)

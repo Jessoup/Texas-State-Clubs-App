@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './myClubsPage.dart';
+import 'ExploreClubsPage.dart'; 
 
 class Dashboard extends StatelessWidget {
   @override
@@ -49,23 +50,31 @@ class Dashboard extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            Card(
-              elevation: 5,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Explore Clubs',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+            GestureDetector( // Changed to GestureDetector
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ExploreClubsPage()), // Navigate to ExploreClubsPage
+                );
+              },
+              child: Card(
+                elevation: 5,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Explore Clubs',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(''),
-                  ],
+                      SizedBox(height: 10),
+                      Text('Discover new clubs'),
+                    ],
+                  ),
                 ),
               ),
             ),
