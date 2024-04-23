@@ -1,62 +1,55 @@
+from django.contrib.auth import authenticate
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework import generics, status
+from rest_framework.request import Request
 from rest_framework.response import Response
-from .serializers import UserSerializer
-from .models import User
+from rest_framework.views import APIView
+
+from .serializers import SignUpSerializer
+from .tokens import create_jwt_pair_for_user
+
 # Create your views here.
 
-@api_view(['GET'])
-def getRoutes(request):
-    routes = [
-        {
-            'Endpoint': '/users/',
-            'method': 'GET',
-            'body': None,
-            'description': 'Returns an array of users'
-        }
-    ]
-    return Response(routes)
 
-@api_view(['GET'])
-def getUsers(request):
-    users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
-    return Response(serializer.data)
+class SignUpView(generics.GenericAPIView):
+    serializer_class = SignUpSerializer
+    permission_classes = []
 
-@api_view(['GET'])
-def getUser(request, pk):
-    user = User.objects.get(id=pk)
-    serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
+    def post(self, request: Request):
+        data = request.data
 
-@api_view(['POST'])
-def createUser(request):
-    data = request.data
-    
-    user = User.objects.create(
-        firstName=data['firstName'],
-        lastName=data['lastName'],
-        userName=data['userName'],
-        password=data['password'],
-        isAdmin=data['isAdmin'],
-    )
-    serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            response = {"message": "User Created Successfully", "data": serializer.data}
+
+            return Response(data=response, status=status.HTTP_201_CREATED)
+
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['PUT'])
-def updateUser(request, pk):
-    data = request.data
+class LoginView(APIView):
+    permission_classes = []
 
-    user = User.objects.get(id=pk)
-    serializer = UserSerializer(user, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-    
-    return Response(serializer.data)
+    def post(self, request: Request):
+        email = request.data.get("email")
+        password = request.data.get("password")
 
-@api_view(['DELETE'])
-def deleteUser(request, pk):
-    user = User.objects.get(id=pk)
-    user.delete()
-    return Response('User was deleted.')
+        user = authenticate(email=email, password=password)
+
+        if user is not None:
+
+            tokens = create_jwt_pair_for_user(user)
+
+            response = {"message": "Login Successfull", "tokens": tokens}
+            return Response(data=response, status=status.HTTP_200_OK)
+
+        else:
+            return Response(data={"message": "Invalid email or password"})
+
+    def get(self, request: Request):
+        content = {"user": str(request.user), "auth": str(request.auth)}
+
+        return Response(data=content, status=status.HTTP_200_OK)
