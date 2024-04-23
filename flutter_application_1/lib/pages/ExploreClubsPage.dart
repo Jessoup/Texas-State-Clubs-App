@@ -8,10 +8,8 @@ class ExploreClubsPage extends StatefulWidget {
 }
 
 class _ExploreClubsPageState extends State<ExploreClubsPage> {
-  // Create an instance of the API class
-  api apiCalls = api();  // Note: Make sure the class name matches what's in api.dart
+  api apiCalls = api();
 
-  // Updated to handle a list of clubs
   Future<List<Club>> _fetchClubs() {
     return apiCalls.getClubs();
   }
@@ -31,19 +29,46 @@ class _ExploreClubsPageState extends State<ExploreClubsPage> {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else if (snapshot.hasData) {
             return ListView.builder(
-              itemCount: snapshot.data!.length,  // Updated to use length of list directly
+              itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                Club club = snapshot.data![index];  // Accessing clubs directly from list
-                return ListTile(
-                  title: Text(club.clubName),
-                  subtitle: Text(club.clubDescription),
-                );
+                return clubCard(snapshot.data![index]);
               },
             );
           } else {
             return Text("No clubs found");
           }
         },
+      ),
+    );
+  }
+
+  Widget clubCard(Club club) {
+    return Card(
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              club.clubName,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10),
+            Text(club.clubDescription),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Here you could implement functionality to add this club
+                print("Add Club: ${club.clubName}");
+              },
+              child: Text('Join Club'),
+            )
+          ],
+        ),
       ),
     );
   }
