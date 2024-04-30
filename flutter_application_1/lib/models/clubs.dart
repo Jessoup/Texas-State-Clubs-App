@@ -1,12 +1,16 @@
 // clubs.dart
 import 'dart:convert';
-// Assuming API returns a list of clubs directly
-List<Club> clubFromJson(String str) => List<Club>.from(json.decode(str).map((x) => Club.fromJson(x)));
+
+// Adjusted to handle paginated API response
+List<Club> clubFromJson(String str) {
+  final jsonData = json.decode(str);
+  return List<Club>.from(jsonData['results'].map((x) => Club.fromJson(x)));
+}
 
 String clubToJson(List<Club> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class Club {
-  int id;
+  int id; // Change the variable name to id
   String clubName;
   String clubDescription;
 
@@ -17,7 +21,7 @@ class Club {
   });
 
   factory Club.fromJson(Map<String, dynamic> json) => Club(
-        id: json['id'],
+        id: json.containsKey('clubID') ? json['clubID'] : json['id'], // Use conditional operator to handle both cases
         clubName: json['clubName'],
         clubDescription: json['clubDescription'],
       );
@@ -28,3 +32,6 @@ class Club {
         'clubDescription': clubDescription,
       };
 }
+
+
+

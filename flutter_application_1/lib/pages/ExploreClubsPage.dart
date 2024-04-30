@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../api/api.dart'; // Ensure this import path is correct
-import '../models/clubs.dart'; // Ensure this import path is correct
+import '../api/api.dart';
+import '../models/clubs.dart';
 
 class ExploreClubsPage extends StatefulWidget {
+  ExploreClubsPage();
+
   @override
   _ExploreClubsPageState createState() => _ExploreClubsPageState();
 }
@@ -10,7 +12,11 @@ class ExploreClubsPage extends StatefulWidget {
 class _ExploreClubsPageState extends State<ExploreClubsPage> {
   api apiCalls = api();
 
-  Future<List<Club>> _fetchClubs() {
+  Future<List<Club>> _fetchClubs() async {
+    String? token = await apiCalls.getValidToken();
+    if (token == null) {
+      throw Exception('Authentication required');
+    }
     return apiCalls.getClubs();
   }
 
@@ -61,9 +67,20 @@ class _ExploreClubsPageState extends State<ExploreClubsPage> {
             Text(club.clubDescription),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Here you could implement functionality to add this club
-                print("Add Club: ${club.clubName}");
+              onPressed: () async {
+                try {
+                  String? token = await apiCalls.getValidToken();
+                  if (token != null) {
+                    bool joined = await apiCalls.joinClub(club.id, token);
+                    if (joined) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully joined ${club.clubName}')));
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Authentication needed')));
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to join club: ${e.toString()}')));
+                }
               },
               child: Text('Join Club'),
             )

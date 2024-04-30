@@ -7,10 +7,11 @@ from .models import Club
 from .models import UserClubRelation
 
 class ClubSerializer(serializers.ModelSerializer):
+    clubID = serializers.IntegerField(source='id', read_only=True)  # Rename 'id' field to 'clubID'
+
     class Meta:
         model = Club
-        fields = ['id', 'clubName', 'clubDescription']
-
+        fields = ['clubID', 'clubName', 'clubDescription']
 class CreateClubSerializer(serializers.ModelSerializer):
     class Meta:
         model = Club
@@ -50,14 +51,12 @@ class SignUpSerializer(serializers.ModelSerializer):
         Token.objects.create(user=user)
 
         return user
+
 class UserClubRelationSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserClubRelation
         fields = ['userID', 'clubID', 'isMember', 'isManager']
-        extra_kwargs = {
-            'userID': {'read_only': True},
-            'clubID': {'read_only': True}
-        }
+        read_only_fields = ['userID', 'clubID', 'isMember', 'isManager']  # assuming you manage these from the view
 
 class JoinedClubsSerializer(serializers.ModelSerializer):
     clubName = serializers.ReadOnlyField(source='clubID.clubName')

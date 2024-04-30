@@ -20,8 +20,9 @@ from .models import Club
 class ClubListView(generics.GenericAPIView):
     serializer_class = CreateClubSerializer
     permission_classes = [] 
+
     def get(self, request):
-        clubs = Club.objects.all()
+        clubs = Club.objects.all().order_by('id')  # Order queryset by id or any other field
         serializer = ClubSerializer(clubs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -87,22 +88,21 @@ class LoginView(APIView):
         return Response(data=content, status=status.HTTP_200_OK)
     
 class JoinClubView(generics.CreateAPIView):
-    queryset = UserClubRelation.objects.all()
     serializer_class = UserClubRelationSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         club_id = self.kwargs.get('clubID')
         club = get_object_or_404(Club, pk=club_id)
-        serializer.save(userID=self.request.user, clubID=club, isMember=True)
-
+        serializer.save(userID=self.request.user, clubID=club, isMember=True, isManager=False)
 class LeaveClubView(generics.DestroyAPIView):
     queryset = UserClubRelation.objects.all()
     serializer_class = UserClubRelationSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        obj = get_object_or_404(UserClubRelation, userID=self.request.user, clubID=self.kwargs['clubID'], isMember=True)
+        club_id = self.kwargs.get('clubID')
+        obj = get_object_or_404(UserClubRelation, userID=self.request.user, clubID=club_id, isMember=True)
         return obj
 
 class ListJoinedClubsView(generics.ListAPIView):
