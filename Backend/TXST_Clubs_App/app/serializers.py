@@ -4,6 +4,7 @@ from rest_framework.validators import ValidationError
 
 from .models import User
 from .models import Club
+from .models import UserClubRelation
 
 class ClubSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,5 +50,19 @@ class SignUpSerializer(serializers.ModelSerializer):
         Token.objects.create(user=user)
 
         return user
+class UserClubRelationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserClubRelation
+        fields = ['userID', 'clubID', 'isMember', 'isManager']
+        extra_kwargs = {
+            'userID': {'read_only': True},
+            'clubID': {'read_only': True}
+        }
 
+class JoinedClubsSerializer(serializers.ModelSerializer):
+    clubName = serializers.ReadOnlyField(source='clubID.clubName')
+    clubDescription = serializers.ReadOnlyField(source='clubID.clubDescription')
 
+    class Meta:
+        model = UserClubRelation
+        fields = ['clubID', 'clubName', 'clubDescription']

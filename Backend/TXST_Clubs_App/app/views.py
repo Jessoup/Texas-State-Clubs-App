@@ -6,10 +6,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers import SignUpSerializer
 from .tokens import create_jwt_pair_for_user
 
+from .models import UserClubRelation, Club
+from .serializers import UserClubRelationSerializer, JoinedClubsSerializer
 # Create your views here.
 from .serializers import ClubSerializer, CreateClubSerializer
 from .models import Club
@@ -82,3 +85,29 @@ class LoginView(APIView):
         content = {"user": str(request.user), "auth": str(request.auth)}
 
         return Response(data=content, status=status.HTTP_200_OK)
+    
+class JoinClubView(generics.CreateAPIView):
+    queryset = UserClubRelation.objects.all()
+    serializer_class = UserClubRelationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        club_id = self.kwargs.get('clubID')
+        club = get_object_or_404(Club, pk=club_id)
+        serializer.save(userID=self.request.user, clubID=club, isMember=True)
+
+class LeaveClubView(generics.DestroyAPIView):
+    queryset = UserClubRelation.objects.all()
+    serializer_class = UserClubRelationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        obj = get_object_or_404(UserClubRelation, userID=self.request.user, clubID=self.kwargs['clubID'], isMember=True)
+        return obj
+
+class ListJoinedClubsView(generics.ListAPIView):
+    serializer_class = JoinedClubsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return UserClubRelation.objects.filter(userID=self.request.user, isMember=True)

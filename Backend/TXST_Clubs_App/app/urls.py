@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import (
 
 from . import views
 from .views import ClubListView, ClubDetailView
+from .views import JoinClubView, LeaveClubView, ListJoinedClubsView
 
 urlpatterns = [
     path("signup/", views.SignUpView.as_view(), name="signup"),
@@ -16,4 +17,7 @@ urlpatterns = [
     path("jwt/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path('clubs/', ClubListView.as_view(), name='club-list'),
     path('clubs/<int:pk>/', ClubDetailView.as_view(), name='club-detail'),
+    path('join-club/<int:clubID>/', JoinClubView.as_view(), name='join-club'),
+    path('leave-club/<int:clubID>/', LeaveClubView.as_view(), name='leave-club'),
+    path('my-clubs/', ListJoinedClubsView.as_view(), name='my-clubs'),
 ]
