@@ -8,6 +8,8 @@ from rest_framework_simplejwt.views import (
 from . import views
 from .views import ClubListView, ClubDetailView
 from .views import JoinClubView, LeaveClubView, ListJoinedClubsView
+from .views import EventListView, AttendEventView, EventAttendeesView, EventCreateView,UserEventsView, DeleteEventView
+
 
 urlpatterns = [
     path("signup/", views.SignUpView.as_view(), name="signup"),
@@ -20,4 +22,10 @@ urlpatterns = [
     path('join-club/<int:clubID>/', JoinClubView.as_view(), name='join-club'),
     path('leave-club/<int:clubID>/', LeaveClubView.as_view(), name='leave-club'),
     path('my-clubs/', ListJoinedClubsView.as_view(), name='my-clubs'),
+    path('events/', EventListView.as_view(), name='event-list'),
+    path('attend-event/<int:event_id>/', AttendEventView.as_view(), name='attend-event'),
+    path('event-attendees/<int:event_id>/', EventAttendeesView.as_view(), name='event-attendees'),
+    path('events/create/', EventCreateView.as_view(), name='event-create'),
+    path('user-events/', UserEventsView.as_view(), name='user-events'),
+    path('events/delete/<int:event_id>/', DeleteEventView.as_view(), name='delete-event'),
 ]

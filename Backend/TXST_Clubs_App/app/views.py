@@ -7,7 +7,8 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.exceptions import PermissionDenied
+from django_filters.rest_framework import DjangoFilterBackend
 from .serializers import SignUpSerializer
 from .tokens import create_jwt_pair_for_user
 
@@ -15,7 +16,73 @@ from .models import UserClubRelation, Club
 from .serializers import UserClubRelationSerializer, JoinedClubsSerializer
 # Create your views here.
 from .serializers import ClubSerializer, CreateClubSerializer
-from .models import Club
+from .models import Event, EventAttendance
+from .serializers import EventSerializer, EventAttendanceSerializer,EventDetailSerializer
+
+class EventCreateView(generics.CreateAPIView):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = [IsAuthenticated]  # Ensuring only authenticated users can create events
+class DeleteEventView(generics.DestroyAPIView):
+    queryset = Event.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        event_id = self.kwargs.get('event_id')
+        event = get_object_or_404(Event, pk=event_id)
+        return event
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"message": "Successfully deleted the event."}, status=status.HTTP_204_NO_CONTENT)
+
+class UserEventsView(generics.ListAPIView):
+    serializer_class = EventDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        # Get all event IDs where the user is marked as attending
+        attending_events_ids = EventAttendance.objects.filter(
+            userID=user, attending=True
+        ).values_list('eventID', flat=True)
+        # Filter events by those IDs
+        return Event.objects.filter(id__in=attending_events_ids).distinct()
+class EventListView(generics.ListAPIView):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['club', 'timeStart', 'timeEnd']
+
+    def get_queryset(self):
+        user_clubs = UserClubRelation.objects.filter(userID=self.request.user, isMember=True).values_list('clubID', flat=True)
+        return super().get_queryset().filter(club__id__in=user_clubs)
+
+class AttendEventView(generics.CreateAPIView):
+    queryset = EventAttendance.objects.all()
+    serializer_class = EventAttendanceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        event_id = self.kwargs['event_id']  # Getting event_id from the URL parameters
+        event = get_object_or_404(Event, pk=event_id)
+
+        # Check if the user is part of the club hosting the event
+        if not UserClubRelation.objects.filter(userID=self.request.user, clubID=event.club, isMember=True).exists():
+            raise PermissionDenied({"message": "You are not a member of the club hosting this event."})
+
+        # Save the attendance with the user and event details
+        serializer.save(userID=self.request.user, eventID=event, attending=True)
+class EventAttendeesView(generics.ListAPIView):
+    serializer_class = EventAttendanceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        event_id = self.kwargs.get('event_id')
+        return EventAttendance.objects.filter(eventID=event_id, attending=True)
+
 
 class ClubListView(generics.GenericAPIView):
     serializer_class = CreateClubSerializer
@@ -104,6 +171,11 @@ class LeaveClubView(generics.DestroyAPIView):
         club_id = self.kwargs.get('clubID')
         obj = get_object_or_404(UserClubRelation, userID=self.request.user, clubID=club_id, isMember=True)
         return obj
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"message": "Successfully left the club."}, status=status.HTTP_204_NO_CONTENT)
 
 class ListJoinedClubsView(generics.ListAPIView):
     serializer_class = JoinedClubsSerializer
