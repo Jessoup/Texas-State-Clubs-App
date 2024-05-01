@@ -24,7 +24,12 @@ class _ExploreClubsPageState extends State<ExploreClubsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Explore Clubs'),
+        title: Text(
+          'Explore Clubs',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Color.fromARGB(255, 131, 9, 1),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: FutureBuilder<List<Club>>(
         future: _fetchClubs(),

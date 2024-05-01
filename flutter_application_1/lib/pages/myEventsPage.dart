@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../api/api.dart';
-import '../models/events.dart';  // Make sure the Event model fits your data structure
+import '../models/events.dart';
+import '../models/user.dart';
 import 'package:intl/intl.dart';
 
 class MyEventsPage extends StatefulWidget {
@@ -30,7 +31,12 @@ class _MyEventsPageState extends State<MyEventsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Events'),
+        title: Text(
+          'My Events',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Color.fromARGB(255, 131, 9, 1),
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
@@ -67,54 +73,123 @@ class _MyEventsPageState extends State<MyEventsPage> {
   }
 
   Widget eventCard(Event event) {
-    DateFormat timeFormat = DateFormat('MMM dd h:mm a');
-    String formattedStartTime = timeFormat.format(event.timeStart.toLocal());
-    String formattedEndTime = timeFormat.format(event.timeEnd.toLocal());
+  DateFormat timeFormat = DateFormat('MMM dd h:mm a');
+  String formattedStartTime = timeFormat.format(event.timeStart.toLocal());
+  String formattedEndTime = timeFormat.format(event.timeEnd.toLocal());
 
-    return Card(
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              event.eventName,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+  return Card(
+    elevation: 5,
+    child: Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            event.eventName,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
-            SizedBox(height: 10),
-            Text('Start: $formattedStartTime'),
-            Text('End: $formattedEndTime'),
-            Text('Location: ${event.location}'),
-            Text('Attendees: ${event.attendees.map((a) => a.email).join(', ')}'),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                String? token = await apiCalls.getValidToken();
-                if (token != null) {
-                  try {
-                    bool removed = await apiCalls.removeEvent(event.id, token);
-                    if (removed) {
-                      setState(() {
-                        myEvents = _fetchMyEvents();
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully removed event')));
+          ),
+          SizedBox(height: 10),
+          Text('Start: $formattedStartTime'),
+          Text('End: $formattedEndTime'),
+          Text(
+            'Location: ${event.location}',
+            style: TextStyle(
+              color: Colors.blue,
+            )
+            ),
+          SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  // Add logic to view attendees
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AttendeesPage(attendees: event.attendees)),
+                  );
+                },
+                child: Text('View Attendees'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  String? token = await apiCalls.getValidToken();
+                  if (token != null) {
+                    try {
+                      bool removed = await apiCalls.removeEvent(event.id, token);
+                      if (removed) {
+                        setState(() {
+                          myEvents = _fetchMyEvents();
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully removed event')));
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to remove event')));
+                      print(e.toString());
                     }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to remove event')));
-                    print(e.toString());
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Authentication needed')));
                   }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Authentication needed')));
-                }
+                },
+                child: Text('Remove Event'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+  void _viewAttendees(BuildContext context, List<Attendee> attendees) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Attendees"),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                for (var attendee in attendees)
+                  ListTile(
+                    title: Text(attendee.email),
+                  ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
               },
-              child: Text('Remove Event'),
+              child: Text("Close"),
             ),
           ],
-        ),
+        );
+      },
+    );
+  }
+}
+
+// Attendees Page
+class AttendeesPage extends StatelessWidget {
+  final List<Attendee> attendees;
+  AttendeesPage({required this.attendees});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Attendees'),
+      ),
+      body: ListView.builder(
+        itemCount: attendees.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(attendees[index].email),
+          );
+        },
       ),
     );
   }

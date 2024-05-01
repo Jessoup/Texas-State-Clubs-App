@@ -26,7 +26,12 @@ class _ThisClubState extends State<ThisClub> {
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: Text(widget.club.clubName),
+      title: Text(
+        widget.club.clubName,
+        style: TextStyle(color: Colors.white),
+      ),
+      backgroundColor: Color.fromARGB(255, 131, 9, 1),
+      iconTheme: IconThemeData(color: Colors.white),
     ),
     body: FutureBuilder<List<Event>>(
       future: clubEvents,

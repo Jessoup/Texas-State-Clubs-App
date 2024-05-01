@@ -28,7 +28,12 @@ class _MyClubsPageState extends State<MyClubsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Clubs'),
+        title: Text(
+          'My Clubs',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Color.fromARGB(255, 131, 9, 1),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: FutureBuilder<List<Club>>(
         future: myClubs,
