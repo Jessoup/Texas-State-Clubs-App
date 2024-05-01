@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../api/api.dart';
 import '../models/events.dart';  // Make sure the Event model fits your data structure
+import 'package:intl/intl.dart';
 
 class MyEventsPage extends StatefulWidget {
   MyEventsPage();
@@ -11,8 +12,17 @@ class MyEventsPage extends StatefulWidget {
 
 class _MyEventsPageState extends State<MyEventsPage> {
   api apiCalls = api();
+  Future<List<Event>>? myEvents;
 
-  Future<List<Event>> _fetchEvents() async {
+  @override
+  void initState() {
+    super.initState();
+    myEvents = _fetchMyEvents().catchError((error) {
+      print('Error fetching events: $error');
+    });
+  }
+
+  Future<List<Event>> _fetchMyEvents() async {
     return apiCalls.getMyEvents();
   }
 
@@ -23,7 +33,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
         title: Text('My Events'),
       ),
       body: FutureBuilder<List<Event>>(
-        future: _fetchEvents(),
+        future: _fetchMyEvents(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -45,6 +55,10 @@ class _MyEventsPageState extends State<MyEventsPage> {
   }
 
   Widget eventCard(Event event) {
+    DateFormat timeFormat = DateFormat('MMM dd h:mm a');
+    String formattedStartTime = timeFormat.format(event.timeStart.toLocal());
+    String formattedEndTime = timeFormat.format(event.timeEnd.toLocal());
+
     return Card(
       elevation: 5,
       child: Padding(
@@ -60,12 +74,33 @@ class _MyEventsPageState extends State<MyEventsPage> {
               ),
             ),
             SizedBox(height: 10),
-            Text('Start: ${event.timeStart.toLocal()}'),
-            Text('End: ${event.timeEnd.toLocal()}'),
+            Text('Start: $formattedStartTime'),
+            Text('End: $formattedEndTime'),
             Text('Location: ${event.location}'),
             Text('Attendees: ${event.attendees.map((a) => a.email).join(', ')}'),
             SizedBox(height: 20),
-            // Additional widgets for event handling can be added here
+            ElevatedButton(
+              onPressed: () async {
+                String? token = await apiCalls.getValidToken();
+                if (token != null) {
+                  try {
+                    bool removed = await apiCalls.removeEvent(event.id, token);
+                    if (removed) {
+                      setState(() {
+                        myEvents = _fetchMyEvents();
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully removed event')));
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to remove event')));
+                    print(e.toString());
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Authentication needed')));
+                }
+              },
+              child: Text('Remove Event'),
+            ),
           ],
         ),
       ),

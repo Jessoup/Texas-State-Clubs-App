@@ -192,4 +192,16 @@ Future<List<Event>> getMyEvents() async {
   }
 }
 
+// API call to removing event from users my events
+Future<bool> removeEvent(int eventID, String token) async {
+  var uri = Uri.parse('${ApiUrls.baseUrl}${ApiUrls.removeEventEndpoint}$eventID/');
+    var response = await http.put(uri, headers: {'Authorization': 'Bearer $token'});
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('Failed to remove event. Status code: ${response.statusCode}');
+    }
+  }
+
 }
