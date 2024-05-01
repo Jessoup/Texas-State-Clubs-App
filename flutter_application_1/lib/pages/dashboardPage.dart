@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './myClubsPage.dart';
+import './myEventsPage.dart';
 import 'ExploreClubsPage.dart';
 import '../api/api.dart';  // Ensure the API class is imported
 import '../services/token_storage.dart';
@@ -34,6 +35,11 @@ class Dashboard extends StatelessWidget {
             GestureDetector(
               onTap: () => navigateToPage(context, ExploreClubsPage()),
               child: dashboardCard('Explore Clubs', 'Discover new clubs'),
+            ),
+            SizedBox(height: 20),
+            GestureDetector(
+              onTap: () => navigateToPage(context, MyEventsPage()),
+              child: dashboardCard('My Events', 'View all attending events'),
             ),
           ],
         ),

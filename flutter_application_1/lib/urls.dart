@@ -8,4 +8,5 @@ class ApiUrls {
   static String joinClubEndpoint = '/join-club/';  // Endpoint to join a club
   static String leaveClubEndpoint = '/leave-club/';  // Endpoint to leave a club
   static String myClubsEndpoint = '/my-clubs/';  // Endpoint to fetch clubs that the user has joined
+  static String myEventsEndpoint = '/user-events/';
 }

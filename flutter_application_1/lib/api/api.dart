@@ -8,6 +8,7 @@ import '../models/user.dart';
 import '../models/clubs.dart';
 import '../services/token_storage.dart'; 
 import 'package:jwt_decode/jwt_decode.dart';
+import '../models/events.dart';
 class api {
   final TokenStorage _tokenStorage = TokenStorage();
 
@@ -158,7 +159,6 @@ Future<List<Club>> getClubs() async {
     }
   }
 
-  // API call to fetch user's clubs
 // API call to fetch user's clubs
 Future<List<Club>> getMyClubs() async {
   String? token = await getValidToken();
@@ -174,4 +174,22 @@ Future<List<Club>> getMyClubs() async {
     throw Exception('Failed to load my clubs. Status code: ${response.statusCode}');
   }
 }
+
+Future<List<Event>> getMyEvents() async {
+  String? token = await getValidToken();
+  if (token == null) {
+    throw Exception('Authentication required');
+  }
+  var uri = Uri.parse(ApiUrls.baseUrl + ApiUrls.myEventsEndpoint);
+  var response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+  
+  if (response.statusCode == 200) {
+    var jsonData = json.decode(response.body);
+    List<Event> events = List<Event>.from(jsonData['results'].map((x) => Event.fromJson(x)));
+    return events;
+  } else {
+    throw Exception('Failed to load user events. Status code: ${response.statusCode}');
+  }
+}
+
 }
