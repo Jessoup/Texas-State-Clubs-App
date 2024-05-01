@@ -4,7 +4,7 @@ import '../models/events.dart';  // Make sure the Event model fits your data str
 import 'package:intl/intl.dart';
 
 class MyEventsPage extends StatefulWidget {
-  MyEventsPage();
+  MyEventsPage({Key? key}) : super(key: key);
 
   @override
   _MyEventsPageState createState() => _MyEventsPageState();
@@ -31,6 +31,12 @@ class _MyEventsPageState extends State<MyEventsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('My Events'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () => _refreshEvents(), // Refresh button to reload events
+          )
+        ],
       ),
       body: FutureBuilder<List<Event>>(
         future: _fetchMyEvents(),
@@ -39,7 +45,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error.toString()}"));
-          } else if (snapshot.hasData) {
+          } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
@@ -47,11 +53,17 @@ class _MyEventsPageState extends State<MyEventsPage> {
               },
             );
           } else {
-            return Text("No events found");
+            return Center(child: Text("No events found"));
           }
         },
       ),
     );
+  }
+
+  void _refreshEvents() {
+    setState(() {
+      myEvents = apiCalls.getMyEvents();
+    });
   }
 
   Widget eventCard(Event event) {
