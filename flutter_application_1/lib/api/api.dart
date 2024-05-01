@@ -6,8 +6,12 @@ import '../models/login.dart';
 import '../models/signup.dart';
 import '../models/user.dart';
 import '../models/clubs.dart';
+import '../models/events.dart';
 import '../services/token_storage.dart'; 
 import 'package:jwt_decode/jwt_decode.dart';
+
+
+
 class api {
   final TokenStorage _tokenStorage = TokenStorage();
 
@@ -47,29 +51,29 @@ class api {
     }
   }
 
-// Handles user signup
-Future<SignupResponseModel> signup(User requestModel) async {
-  var uri = Uri.parse(ApiUrls.baseUrl + ApiUrls.signupEndpoint);
-  var response = await http.post(
-    uri,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: json.encode(requestModel.toJson()),
-  );
-  print(response.body);
-  print(response.statusCode);
+  // Handles user signup
+  Future<SignupResponseModel> signup(User requestModel) async {
+    var uri = Uri.parse(ApiUrls.baseUrl + ApiUrls.signupEndpoint);
+    var response = await http.post(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(requestModel.toJson()),
+    );
+    print(response.body);
+    print(response.statusCode);
 
-  if (response.statusCode == 201) {
-    return SignupResponseModel.fromJson(json.decode(response.body));
-  } else if (response.statusCode == 400) {
-    return SignupResponseModel.fromJson(json.decode(response.body));
-  } else {
-    print("Failed to load data. Status code: ${response.statusCode}");
-    print("Response body: ${response.body}");
-    throw Exception('Failed to load Data');
+    if (response.statusCode == 201) {
+      return SignupResponseModel.fromJson(json.decode(response.body));
+    } else if (response.statusCode == 400) {
+      return SignupResponseModel.fromJson(json.decode(response.body));
+    } else {
+      print("Failed to load data. Status code: ${response.statusCode}");
+      print("Response body: ${response.body}");
+      throw Exception('Failed to load Data');
+    }
   }
-}
 
 
   // Attempts to refresh the JWT token
@@ -116,23 +120,23 @@ Future<SignupResponseModel> signup(User requestModel) async {
   }
 
   // API call to fetch clubs
-Future<List<Club>> getClubs() async {
-  String? token = await getValidToken();
-  if (token == null) {
-    throw Exception('Authentication required');
-  }
-  var uri = Uri.parse(ApiUrls.baseUrl + ApiUrls.clubsEndpoint);
-  var response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+  Future<List<Club>> getClubs() async {
+    String? token = await getValidToken();
+    if (token == null) {
+      throw Exception('Authentication required');
+    }
+    var uri = Uri.parse(ApiUrls.baseUrl + ApiUrls.clubsEndpoint);
+    var response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
 
-  if (response.statusCode == 200) {
-    // Modify the parsing logic to handle "id" key
-    List<dynamic> jsonData = json.decode(response.body);
-    List<Club> clubs = jsonData.map((data) => Club.fromJson(data)).toList();
-    return clubs;
-  } else {
-    throw Exception('Failed to load clubs. Status code: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      // Modify the parsing logic to handle "id" key
+      List<dynamic> jsonData = json.decode(response.body);
+      List<Club> clubs = jsonData.map((data) => Club.fromJson(data)).toList();
+      return clubs;
+    } else {
+      throw Exception('Failed to load clubs. Status code: ${response.statusCode}');
+    }
   }
-}
 
   // API call to join a club
   Future<bool> joinClub(int clubId, String token) async {
@@ -157,21 +161,35 @@ Future<List<Club>> getClubs() async {
       throw Exception('Failed to leave club. Status code: ${response.statusCode}');
     }
   }
-
+  
   // API call to fetch user's clubs
-// API call to fetch user's clubs
-Future<List<Club>> getMyClubs() async {
-  String? token = await getValidToken();
-  if (token == null) {
-    throw Exception('Authentication required');
-  }
-  var uri = Uri.parse(ApiUrls.baseUrl + ApiUrls.myClubsEndpoint);
-  var response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+  Future<List<Club>> getMyClubs() async {
+    String? token = await getValidToken();
+    if (token == null) {
+      throw Exception('Authentication required');
+    }
+    var uri = Uri.parse(ApiUrls.baseUrl + ApiUrls.myClubsEndpoint);
+    var response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
 
-  if (response.statusCode == 200) {
-    return clubFromJson(response.body);
-  } else {
-    throw Exception('Failed to load my clubs. Status code: ${response.statusCode}');
+    if (response.statusCode == 200) {
+      return clubFromJson(response.body);
+    } else {
+      throw Exception('Failed to load my clubs. Status code: ${response.statusCode}');
+    }
   }
-}
+
+  Future<List<Event>> getMyEvents() async {
+    String? token = await getValidToken();
+    if (token == null){
+      throw Exception('Authentication required');
+    }
+    var uri = Uri.parse(ApiUrls.baseUrl + ApiUrls.myEventsEndpoint);
+    var response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+  
+    if (response.statusCode == 200) {
+      return eventFromJson(response.body);
+    } else {
+      throw Exception('Failed to load users events. Status code: ${response.statusCode}');
+    }
+  }
 }
