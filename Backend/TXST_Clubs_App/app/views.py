@@ -83,7 +83,22 @@ class EventAttendeesView(generics.ListAPIView):
         event_id = self.kwargs.get('event_id')
         return EventAttendance.objects.filter(eventID=event_id, attending=True)
 
+class UnattendEventView(generics.UpdateAPIView):
+    queryset = EventAttendance.objects.all()
+    serializer_class = EventAttendanceSerializer
+    permission_classes = [IsAuthenticated]
 
+    def get_object(self):
+        event_id = self.kwargs.get('event_id')
+        user = self.request.user
+        # Get the attendance object that corresponds to this user and event
+        attendance = get_object_or_404(EventAttendance, eventID=event_id, userID=user, attending=True)
+        return attendance
+
+    def perform_update(self, serializer):
+        # Update the event attendance to mark as not attending
+        serializer.save(attending=False)
+                        
 class ClubListView(generics.GenericAPIView):
     serializer_class = CreateClubSerializer
     permission_classes = [] 
@@ -107,6 +122,16 @@ class ClubDetailView(generics.GenericAPIView):
         club = get_object_or_404(Club, pk=pk)
         serializer = self.serializer_class(club)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ClubEventsDetailView(generics.ListAPIView):
+    serializer_class = EventDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Retrieve clubID from the URL and filter events accordingly
+        clubID = self.kwargs['clubID']
+        return Event.objects.filter(club__id=clubID)
 
 class SignUpView(generics.GenericAPIView):
     serializer_class = SignUpSerializer

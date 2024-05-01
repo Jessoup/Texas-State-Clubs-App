@@ -51,16 +51,15 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
     def get_attendees(self, obj):
         attendees = EventAttendance.objects.filter(eventID=obj, attending=True).select_related('userID')
-        return [{'email': attendee.userID.email} for attendee in attendees]  # Customize based on the information you want to include
+        return [{'email': attendee.userID.email} for attendee in attendees]
 
 class EventAttendanceSerializer(serializers.ModelSerializer):
+    userID = serializers.StringRelatedField(source='userID.email', read_only=True)  # Ensure userID is read-only
+    eventID = serializers.IntegerField(write_only=True, required=False)  # Set eventID as write-only and not required if it is fetched from URL
+
     class Meta:
         model = EventAttendance
-        fields = ['id', 'userID', 'eventID', 'attending']  # Change 'user' to 'userID'
-
-    userID = serializers.StringRelatedField(source='userID.email', read_only=True)  # Correct field reference
-
-    eventID = serializers.IntegerField(write_only=True, required=False)  # Ensure this is how the field is named in your model
+        fields = ['id', 'userID', 'eventID', 'attending']
 
     def validate_eventID(self, value):
         # Ensure the event exists
