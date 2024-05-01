@@ -91,7 +91,12 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Registration'),
+        title: Text(
+          'User Registration',
+          style: TextStyle(color: Colors.white)
+        ),
+        backgroundColor: Color.fromARGB(255, 131, 9, 1),
+        iconTheme: IconThemeData(color: Colors.white), 
       ),
       body: SingleChildScrollView(
         child: Padding(
