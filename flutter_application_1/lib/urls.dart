@@ -9,4 +9,6 @@ class ApiUrls {
   static String leaveClubEndpoint = '/leave-club/';  // Endpoint to leave a club
   static String myClubsEndpoint = '/my-clubs/';  // Endpoint to fetch clubs that the user has joined
   static String myEventsEndpoint = '/user-events/';
+  static String getClubEvents(int clubId) => '/club-events/$clubId/';
+  static String attendEvent(int eventId) => '/attend-event/$eventId/';  // New method to generate the URL for attending an event
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../api/api.dart';
 import '../models/clubs.dart';
+import '../pages/ThisClub.dart';  // Ensure this is the correct path
 
 class MyClubsPage extends StatefulWidget {
   MyClubsPage();
@@ -10,19 +11,17 @@ class MyClubsPage extends StatefulWidget {
 }
 
 class _MyClubsPageState extends State<MyClubsPage> {
-  api apiCalls = api();
+  api apiCalls = api(); // Correct the instance creation
   Future<List<Club>>? myClubs;
 
   @override
   void initState() {
     super.initState();
-    myClubs = _fetchMyClubs().catchError((error) {
-      print('Error fetching clubs: $error');
-    });
+    myClubs = _fetchMyClubs();
   }
 
   Future<List<Club>> _fetchMyClubs() async {
-    return apiCalls.getMyClubs();
+    return apiCalls.getMyClubs();  // This assumes getMyClubs handles token retrieval internally
   }
 
   @override
@@ -38,7 +37,7 @@ class _MyClubsPageState extends State<MyClubsPage> {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error.toString()}"));
-          } else if (snapshot.hasData) {
+          } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
@@ -46,7 +45,7 @@ class _MyClubsPageState extends State<MyClubsPage> {
               },
             );
           } else {
-            return Text("No clubs found");
+            return Center(child: Text("No clubs found"));
           }
         },
       ),
@@ -72,27 +71,43 @@ class _MyClubsPageState extends State<MyClubsPage> {
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                String? token = await apiCalls.getValidToken();
-                if (token != null) {
-                  try {
-                    bool left = await apiCalls.leaveClub(club.id, token);
-                    if (left) {
-                      setState(() {
-                        myClubs = _fetchMyClubs();
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully left the club')));
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to leave club')));
-                    print(e.toString());
-                  }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Authentication needed')));
-                }
-              },
-              child: Text('Leave Club'),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      String? token = await apiCalls.getValidToken();
+                      if (token != null) {
+                        try {
+                          bool left = await apiCalls.leaveClub(club.id, token);
+                          if (left) {
+                            setState(() {
+                              myClubs = _fetchMyClubs();
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully left the club')));
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to leave club: ${e.toString()}')));
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Authentication needed')));
+                      }
+                    },
+                    child: Text('Leave Club'),
+                    style: ElevatedButton.styleFrom(),
+                  ),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ThisClub(club: club)));
+                    },
+                    child: Text('View Club'),
+                    style: ElevatedButton.styleFrom(),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
